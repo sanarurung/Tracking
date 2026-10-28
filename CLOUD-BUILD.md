@@ -74,3 +74,19 @@ Client Secret은 필요하지 않습니다. 모바일 키 ID는 빌드된 앱에
 실기기에서 지도 인증, 위치 권한, 경로 표시를 확인하세요. 클라우드 컴파일 성공만으로 지도 인증을 검증하지는 않습니다.
 SDK: https://github.com/navermaps/SPM-NMapsMap (3.24.0)
 문서: https://navermaps.github.io/ios-map-sdk/guide-ko/1.html
+
+
+## 1.8 라이브 액티비티 확장 서명
+
+기존 세 가지 서명 시크릿과 함께 `BUILD_WIDGET_PROVISION_PROFILE_BASE64`가 필요합니다.
+Apple Developer에서 앱 Bundle ID 뒤에 `.TripLiveActivity`를 붙인 명시적 App ID를 만들고,
+앱과 같은 팀·Apple Distribution 인증서·등록 iPhone을 포함한 Ad Hoc 프로파일을 생성합니다.
+예: 기본 앱 `com.example.DriveMeter`, 확장 `com.example.DriveMeter.TripLiveActivity`.
+확장 프로파일을 Base64로 인코딩해 위 시크릿에 등록하세요. 앱/확장은 각각의 프로파일로 서명됩니다.
+네 가지 서명 시크릿이 모두 없으면 설치 전 서명이 필요한 unsigned IPA만 생성합니다.
+
+주행 시작 시 라이브 액티비티가 생성됩니다. iPhone 설정에서 앱의 라이브 액티비티가 허용되어야 합니다.
+다이나믹 아일랜드 지원 기기에서는 왼쪽 속도·오른쪽 거리를 표시합니다.
+주행 종료 시 아일랜드 표시를 종료하고 잠금화면 결과는 최대 5분 유지합니다.
+화면 자동 꺼짐 방지는 앱이 활성화된 동안에만 적용됩니다. 전원 버튼으로 직접 잠글 수 있습니다.
+백그라운드 갱신은 iOS의 위치 실행·ActivityKit 갱신 정책에 따릅니다. 강제 종료 후에는 갱신되지 않습니다.
