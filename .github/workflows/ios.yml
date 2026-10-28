@@ -19,6 +19,8 @@ jobs:
     defaults:
       run:
         working-directory: DriveMeter
+    env:
+      NAVER_MAPS_CLIENT_ID: ${{ secrets.NAVER_MAPS_CLIENT_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -31,6 +33,16 @@ jobs:
 
       - name: Test history persistence and motion fusion
         run: swift test --parallel
+
+      - name: Configure Naver Maps
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$NAVER_MAPS_CLIENT_ID" ]; then
+            echo "::error::Add the NAVER_MAPS_CLIENT_ID repository secret before building."
+            exit 1
+          fi
+          /usr/libexec/PlistBuddy -c "Set :NMFNcpKeyId $NAVER_MAPS_CLIENT_ID" DriveMeter/Info.plist
 
       - name: Archive for iPhone without signing
         shell: bash
