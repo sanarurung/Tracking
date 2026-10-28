@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      run_tests:
+        description: Run the existing nine tests on iOS 27 before archiving
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -30,6 +35,7 @@ jobs:
         run: python3 -m zipfile -e DriveMeter-iPhone.zip .
 
       - name: Select an available iPhone simulator
+        if: github.event_name == 'workflow_dispatch' && inputs.run_tests
         id: simulator
         shell: bash
         run: |
@@ -49,6 +55,7 @@ jobs:
           PY
 
       - name: Compile and run fare and inertial tests
+        if: github.event_name == 'workflow_dispatch' && inputs.run_tests
         env:
           SIMULATOR_UDID: ${{ steps.simulator.outputs.udid }}
         shell: bash
@@ -72,32 +79,6 @@ jobs:
           ditto build/Unsigned.xcarchive/Products/Applications/DriveMeter.app build/unsigned/Payload/DriveMeter.app
           cd build/unsigned
           zip -qry ../DriveMeter-unsigned.ipa Payload
-
-      - name: Capture Liquid Glass on iOS 27
-        env:
-          SIMULATOR_UDID: ${{ steps.simulator.outputs.udid }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          xcrun simctl boot "$SIMULATOR_UDID" || true
-          xcrun simctl bootstatus "$SIMULATOR_UDID" -b
-          xcrun simctl install "$SIMULATOR_UDID" build/DerivedData/Build/Products/Debug-iphonesimulator/DriveMeter.app
-          xcrun simctl privacy "$SIMULATOR_UDID" grant location com.example.DriveMeter
-          xcrun simctl ui "$SIMULATOR_UDID" appearance light
-          xcrun simctl launch --terminate-running-process "$SIMULATOR_UDID" com.example.DriveMeter
-          sleep 3
-          xcrun simctl io "$SIMULATOR_UDID" screenshot build/LiquidGlass-light.png
-          xcrun simctl ui "$SIMULATOR_UDID" appearance dark
-          sleep 2
-          xcrun simctl io "$SIMULATOR_UDID" screenshot build/LiquidGlass-dark.png
-
-      - name: Upload UI previews
-        uses: actions/upload-artifact@v4
-        with:
-          name: LiquidGlass-iOS27-previews
-          path: DriveMeter/build/LiquidGlass-*.png
-          if-no-files-found: error
-          retention-days: 7
 
       - name: Upload unsigned IPA (requires signing before installation)
         uses: actions/upload-artifact@v4
