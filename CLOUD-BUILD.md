@@ -58,3 +58,19 @@ $opensslPath = 'C:\Program Files\Git\usr\bin\openssl.exe'
 서명된 Ad Hoc IPA도 Safari에서 파일만 눌러 바로 설치되지는 않습니다. 등록된 iPhone으로 IPA를 설치할 수 있는 배포·기기 관리 경로가 별도로 필요합니다. TestFlight로 설치하려면 App Store 배포 프로파일을 사용하는 별도 업로드 흐름이 필요하며, 이 워크플로는 Ad Hoc IPA 생성까지만 수행합니다.
 
 공식 참고: [GitHub의 Apple 서명 설정](https://docs.github.com/en/actions/how-tos/deploy/deploy-to-third-party-platforms/sign-xcode-applications), [Apple 배포 방식](https://help.apple.com/xcode/mac/current/en.lproj/dev31de635e5.html).
+
+
+## 네이버 지도 (1.2)
+
+GitHub Settings → Secrets and variables → Actions에 `NAVER_MAPS_CLIENT_ID`를 등록합니다.
+빌드할 때 `Info.plist`의 `NMFNcpKeyId`에 주입하며 소스 ZIP에는 실제 키를 보관하지 않습니다.
+키가 없으면 지도 없이 작동하는 IPA를 배포하지 않도록 빌드를 중단합니다.
+네이버 클라우드 Maps에서 Dynamic Map을 활성화하고 `com.example.DriveMeter`를 iOS Bundle ID로 등록하세요.
+서명 프로필에 맞춰 번들 ID를 바꾸면 해당 ID도 네이버 콘솔에 추가해야 합니다.
+Client Secret은 필요하지 않습니다. 모바일 키 ID는 빌드된 앱에 포함됩니다.
+
+실시간 지도는 갱신 때마다 생성하지 않고 동일한 네이티브 뷰와 경로 오버레이를 재사용합니다.
+기록 상세 화면에서는 기록의 GPS 경로 전체와 출발·도착을 표시합니다.
+실기기에서 지도 인증, 위치 권한, 경로 표시를 확인하세요. 클라우드 컴파일 성공만으로 지도 인증을 검증하지는 않습니다.
+SDK: https://github.com/navermaps/SPM-NMapsMap (3.24.0)
+문서: https://navermaps.github.io/ios-map-sdk/guide-ko/1.html
